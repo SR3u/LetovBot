@@ -9,6 +9,10 @@ public class OooooStringUtil
         string = string.replace("о́","");
         string = string.replace("0","");
         string = string.replace("\n","");
+        string = string.replace("○","");
+        string = string.replace("-","");
+        string = string.replace("*","");
+        //string = string.replaceAll("\\W", "");
         string = string.trim();
         return string;
     }
