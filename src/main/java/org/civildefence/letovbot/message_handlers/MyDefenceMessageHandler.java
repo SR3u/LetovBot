@@ -20,10 +20,13 @@ public class MyDefenceMessageHandler implements MessageHandler {
                     .setReplyToMessageId(message.getMessageId());
             try {
                 sender.sendMessage(newMessage); // Call method to send the message
+                return true;
             } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
+        } else {
+            return false;
         }
-        return true;
+        return false;
     }
 }

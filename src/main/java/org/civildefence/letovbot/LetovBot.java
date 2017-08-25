@@ -31,9 +31,9 @@ public class LetovBot extends TelegramLongPollingBot {
     public void onUpdateReceived(Update update) {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage().hasText()) {
-            log.info("Received message: " + update.getMessage());
             for (MessageHandler handler : handlers) {
                 if (handler.handleMessage(update.getMessage(), this)) {
+                    log.info("Handled message: " + update.getMessage());
                     return;
                 }
             }
