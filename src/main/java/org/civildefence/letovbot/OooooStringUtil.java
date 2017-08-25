@@ -10,7 +10,7 @@ public class OooooStringUtil {
             return false;
         }
         string = strings[strings.length - 1];
-        Pattern pattern = Pattern.compile("[oоо́○]{3,}");
+        Pattern pattern = Pattern.compile("[oо○]{3,}");
         Matcher matcher = pattern.matcher(string);
         return matcher.find();
     }

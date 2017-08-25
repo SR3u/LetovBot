@@ -1,6 +1,5 @@
 package org.civildefence.letovbot;
 
-import org.apache.log4j.BasicConfigurator;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -19,13 +18,14 @@ public class Main {
         try {
             Logger logger = Logger.getRootLogger();
             Properties p = new Properties();
-            ClassLoader classLoader = new Main().getClass().getClassLoader();
+            ClassLoader classLoader = Main.class.getClassLoader();
             File file = new File(classLoader.getResource("log4j.properties").getFile());
             p.load(new FileInputStream(file));
             PropertyConfigurator.configure(p);
             logger.info("Wow! I'm configured!");
-        } catch (IOException e) {
+        } catch (IOException | NullPointerException e) {
             e.printStackTrace();
+            return;
         }
         ApiContextInitializer.init();
 
