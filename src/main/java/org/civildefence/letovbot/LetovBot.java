@@ -26,12 +26,10 @@ public class LetovBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             log.info("Received message: "+update.getMessage());
             String text = update.getMessage().getText().toLowerCase();
-            int oldLength = text.length();
-            text = OooooStringUtil.process(text);
-            if(text.length() == 0 && oldLength >= 3){
+            if(OooooStringUtil.isOoooo(text)){
                 SendMessage message = new SendMessage() // Create a SendMessage object with mandatory fields
                         .setChatId(update.getMessage().getChatId())
-                        .setText("МОЯ ОБОРОНА!!!").setReplyToMessageId(update.getMessage().getMessageId());
+                        .setText("МОЯ ОБОРОНА!!!\n"+new MyDefenceGenerator().generate()).setReplyToMessageId(update.getMessage().getMessageId());
                 try {
                     sendMessage(message); // Call method to send the message
                 } catch (TelegramApiException e) {

@@ -1,19 +1,17 @@
 package org.civildefence.letovbot;
 
-public class OooooStringUtil
-{
-    public static String process(String string){
-        string = string.replace("o","");
-        string = string.replace("о","");
-        string = string.replace("!","");
-        string = string.replace("о́","");
-        string = string.replace("0","");
-        string = string.replace("\n","");
-        string = string.replace("○","");
-        string = string.replace("-","");
-        string = string.replace("*","");
-        //string = string.replaceAll("\\W", "");
-        string = string.trim();
-        return string;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class OooooStringUtil {
+    public static boolean isOoooo(String string) {
+        String[] strings = string.split(" ");
+        if (strings.length > 1) {
+            return false;
+        }
+        string = strings[strings.length - 1];
+        Pattern pattern = Pattern.compile("[oоо́○]{3,}");
+        Matcher matcher = pattern.matcher(string);
+        return matcher.find();
     }
 }
