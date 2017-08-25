@@ -1,7 +1,7 @@
 package org.civildefence.letovbot.message_handlers;
 
-import org.civildefence.letovbot.MyDefenceGenerator;
-import org.civildefence.letovbot.OooooStringUtil;
+import org.civildefence.letovbot.message_handlers.utils.MyDefenceGenerator;
+import org.civildefence.letovbot.message_handlers.utils.OooooStringUtil;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.bots.AbsSender;

@@ -1,4 +1,4 @@
-package org.civildefence.letovbot;
+package org.civildefence.letovbot.message_handlers.utils;
 
 import java.util.Arrays;
 import java.util.HashSet;
