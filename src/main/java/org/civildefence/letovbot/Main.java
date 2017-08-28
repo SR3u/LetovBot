@@ -23,7 +23,7 @@ public class Main {
             File file = new File(classLoader.getResource("log4j.properties").getFile());
             p.load(new FileInputStream(file));
             PropertyConfigurator.configure(p);
-            logger.info("Wow! I'm configured!");
+            logger.info("Logger configured");
         } catch (IOException | NullPointerException e) {
             e.printStackTrace();
             return;

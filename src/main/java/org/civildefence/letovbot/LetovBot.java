@@ -19,7 +19,8 @@ import java.util.Set;
 public class LetovBot extends TelegramLongPollingBot {
 
     List<MessageHandler> handlers = new ArrayList<>();
-    StateStorage stateStorage = StateStorage.load("state.json");
+    private String stateFileName = "state.json";
+    StateStorage stateStorage = StateStorage.load(stateFileName);
 
     @Override
     public String getBotUsername() {
@@ -44,7 +45,7 @@ public class LetovBot extends TelegramLongPollingBot {
                     count += 1;
                     stateStorage.put(update.getMessage().getChat(), update.getMessage().getFrom(), "LetovBot", "usages", count);
                     try {
-                        stateStorage.save(new FileOutputStream("state.json"));
+                        stateStorage.save(new FileOutputStream(stateFileName));
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }

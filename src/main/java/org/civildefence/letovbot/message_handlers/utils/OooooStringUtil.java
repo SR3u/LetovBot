@@ -6,7 +6,7 @@ import java.util.regex.Pattern;
 public class OooooStringUtil {
     public static boolean isOoooo(String string) {
         String[] strings = string.split("\\s+");
-        if (strings.length > 1) {
+        if (strings.length < 1) {
             return false;
         }
         string = strings[strings.length - 1];
