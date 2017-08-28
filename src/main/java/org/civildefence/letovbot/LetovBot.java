@@ -2,10 +2,13 @@ package org.civildefence.letovbot;
 
 import lombok.extern.log4j.Log4j;
 import org.civildefence.letovbot.message_handlers.MessageHandler;
+import org.civildefence.letovbot.utils.StateStorage;
 import org.reflections.Reflections;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +19,7 @@ import java.util.Set;
 public class LetovBot extends TelegramLongPollingBot {
 
     List<MessageHandler> handlers = new ArrayList<>();
+    StateStorage stateStorage = StateStorage.load("state.json");
 
     @Override
     public String getBotUsername() {
@@ -33,6 +37,17 @@ public class LetovBot extends TelegramLongPollingBot {
         if (update.hasMessage() && update.getMessage().hasText()) {
             for (MessageHandler handler : handlers) {
                 if (handler.handleMessage(update.getMessage(), this)) {
+                    Integer count = stateStorage.getInteger(update.getMessage().getChat().getId(), "LetovBot", "usages");
+                    if (count == null) {
+                        count = 0;
+                    }
+                    count += 1;
+                    stateStorage.put(update.getMessage().getChat(), update.getMessage().getFrom(), "LetovBot", "usages", count);
+                    try {
+                        stateStorage.save(new FileOutputStream("state.json"));
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
                     log.info("Handled message: " + update.getMessage());
                     return;
                 }
@@ -41,7 +56,7 @@ public class LetovBot extends TelegramLongPollingBot {
     }
 
 
-    public LetovBot() {
+    public LetovBot() throws FileNotFoundException {
         Class<? extends MessageHandler>[] handlers = getAllHandlers();
         for (Class<? extends MessageHandler> handlerClass : handlers) {
             try {

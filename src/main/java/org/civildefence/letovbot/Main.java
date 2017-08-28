@@ -8,6 +8,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Properties;
 
@@ -33,7 +34,7 @@ public class Main {
 
         try {
             botsApi.registerBot(new LetovBot());
-        } catch (TelegramApiException e) {
+        } catch (TelegramApiException | FileNotFoundException e) {
             e.printStackTrace();
         }
     }
