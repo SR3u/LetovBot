@@ -1,5 +1,6 @@
 package org.civildefence.letovbot;
 
+import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import org.civildefence.letovbot.message_handlers.MessageHandler;
 import org.civildefence.letovbot.utils.StateStorage;
@@ -20,6 +21,7 @@ public class LetovBot extends TelegramLongPollingBot {
 
     List<MessageHandler> handlers = new ArrayList<>();
     private String stateFileName = "state.json";
+    @Getter
     StateStorage stateStorage = StateStorage.load(stateFileName);
 
     @Override
@@ -35,24 +37,29 @@ public class LetovBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         // We check if the update has a message and the message has text
-        if (update.hasMessage() && update.getMessage().hasText()) {
-            for (MessageHandler handler : handlers) {
-                if (handler.handleMessage(update.getMessage(), this)) {
-                    Integer count = stateStorage.getInteger(update.getMessage().getChat().getId(), "LetovBot", "usages");
-                    if (count == null) {
-                        count = 0;
+        if (update.hasMessage() && update.getMessage() != null) {
+            LetovBot bot = this;
+            new Thread() {
+                public void run() {
+                    for (MessageHandler handler : handlers) {
+                        if (handler.handleMessage(update.getMessage(), bot)) {
+                            Integer count = stateStorage.getInteger(update.getMessage().getChat().getId(), "LetovBot", "usages");
+                            if (count == null) {
+                                count = 0;
+                            }
+                            count += 1;
+                            stateStorage.put(update.getMessage().getChat(), update.getMessage().getFrom(), "LetovBot", "usages", count);
+                            try {
+                                stateStorage.save(new FileOutputStream(stateFileName));
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+                            log.info("Handled message: " + update.getMessage());
+                            return;
+                        }
                     }
-                    count += 1;
-                    stateStorage.put(update.getMessage().getChat(), update.getMessage().getFrom(), "LetovBot", "usages", count);
-                    try {
-                        stateStorage.save(new FileOutputStream(stateFileName));
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    log.info("Handled message: " + update.getMessage());
-                    return;
                 }
-            }
+            }.start();
         }
     }
 
