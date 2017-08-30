@@ -2,6 +2,7 @@ package org.civildefence.letovbot.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.User;
@@ -91,6 +92,22 @@ public class StateStorage {
         }
         return null;
     }
+
+    public interface ValueProcessor<T> {
+        T process(T value);
+    }
+
+    @SneakyThrows
+    public <T> void withValue(Chat chat, User user, String type, String key, T defaultValue, ValueProcessor<T> valueProcessor) {
+        T o = (T) get(chat.getId(), type, key);
+        if (o == null) {
+            o = defaultValue;
+            put(chat, user, type, key, o);
+        }
+        o = valueProcessor.process(o);
+        put(chat, user, type, key, o);
+    }
+
 
     public void save(OutputStream out) {
         String json = gson.toJson(this);

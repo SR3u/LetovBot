@@ -1,15 +1,20 @@
 package org.civildefence.letovbot;
 
+import lombok.SneakyThrows;
 import lombok.extern.log4j.Log4j;
 import org.civildefence.letovbot.message_handlers.MessageHandler;
 import org.civildefence.letovbot.utils.StateStorage;
 import org.reflections.Reflections;
+import org.telegram.telegrambots.api.methods.GetFile;
+import org.telegram.telegrambots.api.objects.File;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.lang.reflect.Modifier;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -104,4 +109,26 @@ public class LetovBot extends TelegramLongPollingBot {
         }
         return res;
     }
+
+    @SneakyThrows
+    public InputStream getFileInputStream(String fileId) {
+        File file = getFile(fileId);
+        String url = getFileURL(file);
+        InputStream input = new URL(url).openStream();
+        return input;
+    }
+
+    @SneakyThrows
+    public String getFileURL(File file) {
+        return file.getFileUrl(this.getBotToken());
+    }
+
+    @SneakyThrows
+    public File getFile(String fileId) {
+        GetFile getFile = new GetFile().setFileId(fileId);
+        org.telegram.telegrambots.api.objects.File file = this.execute(getFile);
+        return file;
+    }
+
+
 }

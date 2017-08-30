@@ -2,15 +2,12 @@ package org.civildefence.letovbot.message_handlers;
 
 import lombok.extern.log4j.Log4j;
 import org.civildefence.letovbot.LetovBot;
-import org.telegram.telegrambots.api.methods.GetFile;
 import org.telegram.telegrambots.api.methods.send.SendVideo;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.VideoNote;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 
-import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.*;
 
 @Log4j
@@ -20,10 +17,7 @@ public class VideoNoteMessageHandler implements MessageHandler {
         VideoNote video = message.getVideoNote();
         if (video != null) {
             try {
-                GetFile getFile = new GetFile().setFileId(video.getFileId());
-                org.telegram.telegrambots.api.objects.File file = bot.execute(getFile);
-                String url = file.getFileUrl(bot.getBotToken());
-                InputStream input = new URL(url).openStream();
+                InputStream input = bot.getFileInputStream(video.getFileId());
                 SendVideo sendVideo = new SendVideo().setChatId(message.getChatId())
                         .setReplyToMessageId(message.getMessageId())
                         .setNewVideo(video.getFileId(), input);
@@ -44,13 +38,13 @@ public class VideoNoteMessageHandler implements MessageHandler {
                     if (videos == null) {
                         videos = new HashSet<>();
                     }
-                    videos.add(url);
+                    videos.add(bot.getFileURL(bot.getFile(video.getFileId())));
                     videosMap.put("" + message.getFrom().getId(), videos);
                     storage.put(message.getChat(), message.getFrom(), tag, "videos", videosMap);
                     bot.saveStorage();
                 }));
                 return true;
-            } catch (TelegramApiException | IOException e) {
+            } catch (TelegramApiException e) {
                 e.printStackTrace();
             }
 
