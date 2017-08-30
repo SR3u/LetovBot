@@ -5,4 +5,6 @@ import org.telegram.telegrambots.api.objects.Message;
 
 public interface MessageHandler {
     boolean handleMessage(Message message, LetovBot bot);
+
+    boolean disableInGroups();
 }

@@ -52,4 +52,9 @@ public class VideoNoteMessageHandler implements MessageHandler {
         return false;
     }
 
+    @Override
+    public boolean disableInGroups() {
+        return true;
+    }
+
 }

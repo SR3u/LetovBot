@@ -28,4 +28,9 @@ public class PlasticWorldMessageHandler implements MessageHandler {
         }
         return false;
     }
+
+    @Override
+    public boolean disableInGroups() {
+        return true;
+    }
 }

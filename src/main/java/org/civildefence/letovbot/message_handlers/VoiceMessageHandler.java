@@ -39,4 +39,9 @@ public class VoiceMessageHandler implements MessageHandler {
         }
         return false;
     }
+
+    @Override
+    public boolean disableInGroups() {
+        return true;
+    }
 }

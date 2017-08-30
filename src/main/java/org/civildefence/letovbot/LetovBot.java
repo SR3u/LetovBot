@@ -6,6 +6,7 @@ import org.civildefence.letovbot.message_handlers.MessageHandler;
 import org.civildefence.letovbot.utils.StateStorage;
 import org.reflections.Reflections;
 import org.telegram.telegrambots.api.methods.GetFile;
+import org.telegram.telegrambots.api.objects.Chat;
 import org.telegram.telegrambots.api.objects.File;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -27,6 +28,7 @@ public class LetovBot extends TelegramLongPollingBot {
     private String stateFileName = "state.json";
 
     StateStorage stateStorage = StateStorage.load(stateFileName);
+    private boolean disabledInGroups;
 
     @Override
     public String getBotUsername() {
@@ -45,15 +47,19 @@ public class LetovBot extends TelegramLongPollingBot {
             LetovBot bot = this;
             new Thread() {
                 public void run() {
+                    Chat chat = update.getMessage().getChat();
                     for (MessageHandler handler : handlers) {
+                        if (disabledInGroups && (chat.isGroupChat() || chat.isSuperGroupChat()) && handler.disableInGroups()) {
+                            continue;
+                        }
                         if (handler.handleMessage(update.getMessage(), bot)) {
                             withStateStorage((storage -> {
-                                Integer count = stateStorage.getInteger(update.getMessage().getChat().getId(), "LetovBot", "usages");
+                                Integer count = stateStorage.getInteger(chat.getId(), "LetovBot", "usages");
                                 if (count == null) {
                                     count = 0;
                                 }
                                 count += 1;
-                                stateStorage.put(update.getMessage().getChat(), update.getMessage().getFrom(), "LetovBot", "usages", count);
+                                stateStorage.put(chat, update.getMessage().getFrom(), "LetovBot", "usages", count);
                             }));
                             saveStorage();
                             log.info("Handled message: " + update.getMessage());
@@ -63,6 +69,15 @@ public class LetovBot extends TelegramLongPollingBot {
                 }
             }.start();
         }
+    }
+
+    public <T extends MessageHandler> T getMessageHandler(Class<T> type) {
+        for (MessageHandler handler : handlers) {
+            if (handler.getClass() == type) {
+                return (T) handler;
+            }
+        }
+        throw new IllegalStateException("Something wong with MessageHandler " + type);
     }
 
     public void withStateStorage(StateStorageProcessor p) {
@@ -79,6 +94,14 @@ public class LetovBot extends TelegramLongPollingBot {
                 e.printStackTrace();
             }
         });
+    }
+
+    public void setDisabledInGroups(boolean disabledInGroups) {
+        this.disabledInGroups = disabledInGroups;
+    }
+
+    public boolean getDisabledInGroups() {
+        return disabledInGroups;
     }
 
     public interface StateStorageProcessor {

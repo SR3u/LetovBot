@@ -2,6 +2,7 @@ package org.civildefence.letovbot.utils;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import lombok.Getter;
 import lombok.SneakyThrows;
 import org.apache.commons.io.IOUtils;
 import org.telegram.telegrambots.api.objects.Chat;
@@ -13,7 +14,9 @@ import java.util.Map;
 
 public class StateStorage {
     private Map<Long, Map<String, Map<String, Object>>> storage = new HashMap<>();
+    @Getter
     private Map<Integer, User> users = new HashMap<>();
+    @Getter
     private Map<Long, Chat> chats = new HashMap<>();
     public static Gson gson = new GsonBuilder()
             .setPrettyPrinting()

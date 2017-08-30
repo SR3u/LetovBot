@@ -29,4 +29,9 @@ public class MyDefenceMessageHandler implements MessageHandler {
         }
         return false;
     }
+
+    @Override
+    public boolean disableInGroups() {
+        return true;
+    }
 }

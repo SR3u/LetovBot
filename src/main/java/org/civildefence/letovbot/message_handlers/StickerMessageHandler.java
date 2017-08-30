@@ -38,4 +38,9 @@ public class StickerMessageHandler implements MessageHandler {
         }
         return false;
     }
+
+    @Override
+    public boolean disableInGroups() {
+        return true;
+    }
 }
