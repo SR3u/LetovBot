@@ -104,6 +104,16 @@ public class StateStorage {
             o = defaultValue;
             put(chat, user, type, key, o);
         }
+        if (o instanceof Double) {
+            if (defaultValue instanceof Long) {
+                Long l = 0 + (long) ((Double) o).doubleValue();
+                o = (T) l;
+            }
+            if (defaultValue instanceof Integer) {
+                Integer l = 0 + (int) ((Double) o).doubleValue();
+                o = (T) l;
+            }
+        }
         o = valueProcessor.process(o);
         put(chat, user, type, key, o);
     }
