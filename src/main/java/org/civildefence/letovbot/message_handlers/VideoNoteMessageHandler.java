@@ -2,7 +2,6 @@ package org.civildefence.letovbot.message_handlers;
 
 import lombok.extern.log4j.Log4j;
 import org.civildefence.letovbot.LetovBot;
-import org.civildefence.letovbot.utils.StateStorage;
 import org.telegram.telegrambots.api.methods.GetFile;
 import org.telegram.telegrambots.api.methods.send.SendVideo;
 import org.telegram.telegrambots.api.objects.Message;
@@ -12,10 +11,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Log4j
 public class VideoNoteMessageHandler implements MessageHandler {
@@ -34,18 +30,25 @@ public class VideoNoteMessageHandler implements MessageHandler {
                 bot.sendVideo(sendVideo);
 
                 String tag = "VideoNoteMessageHandler";
-                StateStorage storage = bot.getStateStorage();
-                Map<Integer, Set<String>> videosMap = (Map<Integer, Set<String>>) storage.get(message.getChatId(), tag, "videos");
-                if (videosMap == null) {
-                    videosMap = new HashMap<>();
+                bot.withStateStorage((storage -> {
+                    Map<String, Set<String>> videosMap = (Map<String, Set<String>>) storage.get(message.getChatId(), tag, "videos");
+                    if (videosMap == null) {
+                        videosMap = new HashMap<>();
+                        storage.put(message.getChat(), message.getFrom(), tag, "videos", videosMap);
+                    }
+                    Set<String> videos = new HashSet<>();
+                    Object o = videosMap.get("" + message.getFrom().getId());
+                    if (o != null) {
+                        videos = new HashSet<>((Collection) o);
+                    }
+                    if (videos == null) {
+                        videos = new HashSet<>();
+                    }
+                    videos.add(url);
+                    videosMap.put("" + message.getFrom().getId(), videos);
                     storage.put(message.getChat(), message.getFrom(), tag, "videos", videosMap);
-                }
-                Set<String> videos = videosMap.get(message.getFrom().getId());
-                if (videos == null) {
-                    videos = new HashSet<>();
-                    videosMap.put(message.getFrom().getId(), videos);
-                }
-                videos.add(url);
+                    bot.saveStorage();
+                }));
                 return true;
             } catch (TelegramApiException | IOException e) {
                 e.printStackTrace();

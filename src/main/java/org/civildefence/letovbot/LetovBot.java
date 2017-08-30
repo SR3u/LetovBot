@@ -1,6 +1,5 @@
 package org.civildefence.letovbot;
 
-import lombok.Getter;
 import lombok.extern.log4j.Log4j;
 import org.civildefence.letovbot.message_handlers.MessageHandler;
 import org.civildefence.letovbot.utils.StateStorage;
@@ -21,7 +20,7 @@ public class LetovBot extends TelegramLongPollingBot {
 
     List<MessageHandler> handlers = new ArrayList<>();
     private String stateFileName = "state.json";
-    @Getter
+
     StateStorage stateStorage = StateStorage.load(stateFileName);
 
     @Override
@@ -43,17 +42,15 @@ public class LetovBot extends TelegramLongPollingBot {
                 public void run() {
                     for (MessageHandler handler : handlers) {
                         if (handler.handleMessage(update.getMessage(), bot)) {
-                            Integer count = stateStorage.getInteger(update.getMessage().getChat().getId(), "LetovBot", "usages");
-                            if (count == null) {
-                                count = 0;
-                            }
-                            count += 1;
-                            stateStorage.put(update.getMessage().getChat(), update.getMessage().getFrom(), "LetovBot", "usages", count);
-                            try {
-                                stateStorage.save(new FileOutputStream(stateFileName));
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            }
+                            withStateStorage((storage -> {
+                                Integer count = stateStorage.getInteger(update.getMessage().getChat().getId(), "LetovBot", "usages");
+                                if (count == null) {
+                                    count = 0;
+                                }
+                                count += 1;
+                                stateStorage.put(update.getMessage().getChat(), update.getMessage().getFrom(), "LetovBot", "usages", count);
+                            }));
+                            saveStorage();
                             log.info("Handled message: " + update.getMessage());
                             return;
                         }
@@ -63,6 +60,25 @@ public class LetovBot extends TelegramLongPollingBot {
         }
     }
 
+    public void withStateStorage(StateStorageProcessor p) {
+        synchronized (this) {
+            p.process(stateStorage);
+        }
+    }
+
+    public void saveStorage() {
+        this.withStateStorage(storage -> {
+            try {
+                storage.save(new FileOutputStream(stateFileName));
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+        });
+    }
+
+    public interface StateStorageProcessor {
+        void process(StateStorage storage);
+    }
 
     public LetovBot() throws FileNotFoundException {
         Class<? extends MessageHandler>[] handlers = getAllHandlers();

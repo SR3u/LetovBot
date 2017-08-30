@@ -105,7 +105,9 @@ public class StateStorage {
         try {
             String json = IOUtils.toString(in);
             StateStorage stateStorage = gson.fromJson(json, StateStorage.class);
-            return stateStorage;
+            if (stateStorage != null) {
+                return stateStorage;
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
