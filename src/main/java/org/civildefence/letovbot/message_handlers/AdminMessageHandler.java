@@ -15,7 +15,7 @@ public class AdminMessageHandler implements MessageHandler {
     @Override
     public boolean handleMessage(Message message, LetovBot bot) {
         String text = message.getText();
-        if (text.startsWith("/")) {
+        if (text != null && text.startsWith("/")) {
             this.handlers.forEach(commandHandler -> commandHandler.handleCommand(this, bot, message));
             return true;
         }
