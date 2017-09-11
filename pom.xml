@@ -55,7 +55,7 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>lib/</classpathPrefix>
-                            <mainClass>com.db.txtgame.Main</mainClass>
+                            <mainClass>org.civildefence.letovbot.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
@@ -76,7 +76,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>com.db.txtgame.Main</mainClass>
+                            <mainClass>org.civildefence.letovbot.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

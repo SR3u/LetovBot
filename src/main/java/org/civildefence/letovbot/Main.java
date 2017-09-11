@@ -13,21 +13,9 @@ import java.io.IOException;
 import java.util.Properties;
 
 public class Main {
-    public static void main(String[] args) {
-        //BasicConfigurator.configure();
+    protected static final Logger logger = Logger.getLogger(Main.class);
 
-        try {
-            Logger logger = Logger.getRootLogger();
-            Properties p = new Properties();
-            ClassLoader classLoader = Main.class.getClassLoader();
-            File file = new File(classLoader.getResource("log4j.properties").getFile());
-            p.load(new FileInputStream(file));
-            PropertyConfigurator.configure(p);
-            logger.info("Logger configured");
-        } catch (IOException | NullPointerException e) {
-            e.printStackTrace();
-            return;
-        }
+    public static void main(String[] args) {
         ApiContextInitializer.init();
 
         TelegramBotsApi botsApi = new TelegramBotsApi();
