@@ -24,11 +24,11 @@ import java.util.Set;
 @Log4j
 public class LetovBot extends TelegramLongPollingBot {
 
-    List<MessageHandler> handlers = new ArrayList<>();
+    private List<MessageHandler> handlers = new ArrayList<>();
     private String stateFileName = "state.json";
 
-    StateStorage stateStorage = StateStorage.load(stateFileName);
-    private boolean disabledInGroups;
+    private StateStorage stateStorage = StateStorage.load(stateFileName);
+    private boolean disabledInGroups = true;
 
     @Override
     public String getBotUsername() {
@@ -45,29 +45,27 @@ public class LetovBot extends TelegramLongPollingBot {
         // We check if the update has a message and the message has text
         if (update.hasMessage() && update.getMessage() != null) {
             LetovBot bot = this;
-            new Thread() {
-                public void run() {
-                    Chat chat = update.getMessage().getChat();
-                    for (MessageHandler handler : handlers) {
-                        if (disabledInGroups && (chat.isGroupChat() || chat.isSuperGroupChat()) && handler.disableInGroups()) {
-                            continue;
-                        }
-                        if (handler.handleMessage(update.getMessage(), bot)) {
-                            withStateStorage((storage -> {
-                                Integer count = stateStorage.getInteger(chat.getId(), "LetovBot", "usages");
-                                if (count == null) {
-                                    count = 0;
-                                }
-                                count += 1;
-                                stateStorage.put(chat, update.getMessage().getFrom(), "LetovBot", "usages", count);
-                            }));
-                            saveStorage();
-                            log.info("Handled message: " + update.getMessage());
-                            return;
-                        }
+            new Thread(() -> {
+                Chat chat = update.getMessage().getChat();
+                for (MessageHandler handler : handlers) {
+                    if (disabledInGroups && (chat.isGroupChat() || chat.isSuperGroupChat()) && handler.disableInGroups()) {
+                        continue;
+                    }
+                    if (handler.handleMessage(update.getMessage(), bot)) {
+                        withStateStorage((storage -> {
+                            Integer count = stateStorage.getInteger(chat.getId(), "LetovBot", "usages");
+                            if (count == null) {
+                                count = 0;
+                            }
+                            count += 1;
+                            stateStorage.put(chat, update.getMessage().getFrom(), "LetovBot", "usages", count);
+                        }));
+                        saveStorage();
+                        log.info("Handled message: " + update.getMessage());
+                        return;
                     }
                 }
-            }.start();
+            }).start();
         }
     }
 
@@ -77,7 +75,7 @@ public class LetovBot extends TelegramLongPollingBot {
                 return (T) handler;
             }
         }
-        throw new IllegalStateException("Something wong with MessageHandler " + type);
+        throw new IllegalStateException("Something wrong with MessageHandler " + type);
     }
 
     public void withStateStorage(StateStorageProcessor p) {
@@ -108,7 +106,7 @@ public class LetovBot extends TelegramLongPollingBot {
         void process(StateStorage storage);
     }
 
-    public LetovBot() throws FileNotFoundException {
+    public LetovBot() {
         Class<? extends MessageHandler>[] handlers = getAllHandlers();
         for (Class<? extends MessageHandler> handlerClass : handlers) {
             try {
@@ -137,8 +135,7 @@ public class LetovBot extends TelegramLongPollingBot {
     public InputStream getFileInputStream(String fileId) {
         File file = getFile(fileId);
         String url = getFileURL(file);
-        InputStream input = new URL(url).openStream();
-        return input;
+        return new URL(url).openStream();;
     }
 
     @SneakyThrows
@@ -149,8 +146,7 @@ public class LetovBot extends TelegramLongPollingBot {
     @SneakyThrows
     public File getFile(String fileId) {
         GetFile getFile = new GetFile().setFileId(fileId);
-        org.telegram.telegrambots.api.objects.File file = this.execute(getFile);
-        return file;
+        return this.execute(getFile);
     }
 
 
