@@ -135,7 +135,7 @@ public class LetovBot extends TelegramLongPollingBot {
     public InputStream getFileInputStream(String fileId) {
         File file = getFile(fileId);
         String url = getFileURL(file);
-        return new URL(url).openStream();;
+        return new URL(url).openStream();
     }
 
     @SneakyThrows
