@@ -32,12 +32,12 @@ public class LetovBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return "CivilDefenceBot";
+        return System.getProperty("telegram.bot.token","");
     }
 
     @Override
     public String getBotToken() {
-        return "394603229:AAH1DSXEZbwCWiySAWYeq3x-nOtysmYnjSo";
+        return System.getProperty("telegram.bot.token","");
     }
 
     @Override
@@ -148,6 +148,5 @@ public class LetovBot extends TelegramLongPollingBot {
         GetFile getFile = new GetFile().setFileId(fileId);
         return this.execute(getFile);
     }
-
 
 }
